@@ -1,5 +1,18 @@
 <template>
   <div class="bg-slate-800 gap gap-y-4 dark:bg-slate-800 text-gray-200 p-4">
+    <!-- put a link to the github repo at the top right -->
+    <div class="flex justify-end">
+      <a
+        href="https://github.com/nicokruger/hubs-directory"
+        class="text-gray-400 hover:text-gray-200"
+        target="_blank"
+      >
+      <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" width="32" height="32" alt="GitHub" />
+
+
+      </a>
+    </div>
+
     <div class="text-lg font-semibold font-sans">Hubs Directory</div>
     <div class="text-gray-400">
     A browsable and searchable community built directory of Mozilla Hubs scenes and rooms. Find hidden gems and get inspired.
@@ -10,7 +23,7 @@
         <span color="text-white">{{dataRaw.length}}</span> rooms indexed.
       </div>
       <div class="text-gray-400 text-right text-xs font-thin">
-      Help us build this directory by helping us expand the <a href="https://github.com/nicokruger/hubs-directory/edit/main/crawler/urls.txt" class="underline">directory</a>
+      Help us build this directory by helping us expand the <a href="https://github.com/nicokruger/hubs-directory/edit/main/crawler/urls.txt" class="underline" target="_blank">directory</a>
       </div>
     </div>
 

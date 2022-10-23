@@ -1,4 +1,4 @@
-if (!process.eng.SERP_API_KEY) {
+if (!process.env.SERP_API_KEY) {
   throw new Error('you need to specify SERP_API_KEY as env variable');
 }
 const SerpApi = require('google-search-results-nodejs')

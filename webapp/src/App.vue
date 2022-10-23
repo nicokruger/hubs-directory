@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-slate-800 gap gap-y-4 dark:bg-slate-800 text-gray-200 p-4">
+  <div class="bg-slate-800 gap gap-y-4 text-gray-200 overflow-x-none lg:p-4">
     <!-- put a link to the github repo at the top right -->
     <div class="flex justify-end">
       <a
@@ -31,10 +31,10 @@
     <div class="mt-8 text-lg font-thin font-sans">Categories</div>
     <div class="rounded p-2">
       <!-- draw labels -->
-      <div class="grid grid-cols-7 gap-x-4 flex-wrap gap-y-4">
-        <div v-for="label in filteredLabels" :key="label" class="flex flex-row items-center justify-between gap-x gap-x-4 text-xs rounded py-1 px-2 select-none cursor-pointer hover:bg-slate-400" :class='selectedLabelClass(label)' @click='onToggleLabel(label)'>
-          <div class="text-center">{{ label.label }}</div>
-          <div class="text-center bg-slate-800 rounded-lg w-8 text-white">{{ label.count }}</div>
+      <div class="grid grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-x-4 flex-wrap gap-y-4">
+        <div v-for="label in filteredLabels" :key="label" class="flex flex-wrap flex-row items-center justify-between gap-x gap-x-4 text-xs rounded py-1 px-1 select-none cursor-pointer hover:bg-slate-400" :class='selectedLabelClass(label)' @click='onToggleLabel(label)'>
+          <div class="text-center text-xs ">{{ label.label }}</div>
+          <div class="text-center bg-slate-800 rounded-lg text-white truncate">{{ label.count }}</div>
         </div>
       </div>
 
@@ -47,12 +47,12 @@
     <div class="pt-4" v-if="filteredData.length > 0">
       <div class="text-lg font-thin font-sans">Showing {{ filteredData.length }} scenes</div>
     </div>
-    <div class="pt-1 grid grid-cols-4 gap gap-x-4 gap-y-2">
+    <div class="pt-1 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap gap-x-4 gap-y-2">
       <!-- show heading -->
 
       <div v-for='hubs in filteredData' :key='hubs.thumbnailFilename' class="bg-slate-800 rounded p-2 hover:bg-slate-600">
         <a :href="hubs.url" target="_blank">
-          <div class="text-semibold">{{hubs.title}}</div>
+          <div class="text-semibold break-words">{{hubs.title}}</div>
         </a>
 
         <!-- draw thumbnail -->
@@ -213,11 +213,15 @@ const clearLabels = () => {
 </script>
 
 <style>
+body {
+}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+}
+html {
 }
 </style>

@@ -18,7 +18,7 @@ async function searchGoogle(query, start) {
     q: query,
     start,
     safe: "active",
-    //num:1000
+    num:50
     }, (result) => {
       if (result.error) return reject(result.error);
       resolve(result);

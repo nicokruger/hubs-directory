@@ -55,7 +55,9 @@ async function getHubsData(url) {
     thumbnailFilename: ogImageFilename,
     thumbnail: ogImage,
     title:ogTitle,
-    labels
+    labels,
+    addedTime:new Date().toISOString(),
+    updatedTime:new Date().toISOString()
   }
   fs.writeFileSync(dataFile, JSON.stringify(sceneData));
   return sceneData;

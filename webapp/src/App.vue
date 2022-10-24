@@ -29,7 +29,7 @@
 
 
     <div class="mt-8 text-lg font-thin font-sans">Categories</div>
-    <div class="rounded p-2">
+    <div class="p-2 gap gap-x-4">
       <!-- draw labels -->
       <div class="grid grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-x-4 flex-wrap gap-y-4">
         <div v-for="label in filteredLabels" :key="label" class="flex flex-wrap flex-row items-center justify-between gap-x gap-x-4 text-xs rounded py-1 px-1 select-none cursor-pointer hover:bg-slate-400" :class='selectedLabelClass(label)' @click='onToggleLabel(label)'>
@@ -38,7 +38,9 @@
         </div>
       </div>
 
-      <button class="mt-8 bg-slate-700 rounded py-2 px-4 select-none cursor-pointer" @click='clearLabels'>Clear</button>
+      <div class="flex flex-row gap gap-x-4 justify-center items-center">
+        <button class="mt-8 bg-slate-700 rounded py-2 px-4 select-none cursor-pointer" @click='clearLabels'>Clear</button>
+      </div>
     </div>
 
 
@@ -46,6 +48,7 @@
 
     <div class="pt-4" v-if="filteredData.length > 0">
       <div class="text-lg font-thin font-sans">Showing {{ filteredData.length }} scenes</div>
+        <button class="mt-8 bg-slate-700 rounded py-2 px-4 select-none cursor-pointer" @click='openRandomScene'>Random</button>
     </div>
     <div class="pt-1 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap gap-x-4 gap-y-2">
       <!-- show heading -->
@@ -209,6 +212,12 @@ const clearLabels = () => {
   selectedLabels.value = [];
 };
 
+
+const openRandomScene = () => {
+  const randomIndex = Math.floor(Math.random() * filteredData.value.length);
+  const hubs = filteredData.value[randomIndex];
+  window.open(hubs.url, '_blank');
+};
 
 </script>
 

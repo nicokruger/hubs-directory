@@ -12,33 +12,56 @@ function checkIsHubsRoomOrScene (url) {
 
 const urls = fs.readFileSync('urls.txt', 'utf8').split('\n');
 
-for (const start of [0,100,200,300]) {
-  search.json({
-  q: '"hubs by mozilla" site:hubs.mozilla.com',
+async function searchGoogle(query, start) {
+  return new Promise( (resolve, reject) => {
+    search.json({
+    q: query,
     start,
-  safe: "active",
-    num:1000
-  }, (result) => {
-    //console.log(result)
+    safe: "active",
+    //num:1000
+    }, (result) => {
+      if (result.error) return reject(result.error);
+      resolve(result);
+    })
+  });
+}
 
-    console.log(`start: ${start}, results: ${result.search_information.total_results}`)
-    for (const r of result.organic_results) {
-      const link = r.link;
-      //console.log(link);
+async function run() {
+  let start = 0;
+  const query = "inurl:scenes site:hubs.mozilla.com";
+  while (true) {
+    try {
+      const result = await searchGoogle(query, start);
 
-      const isHubsRoomOrScene = checkIsHubsRoomOrScene(link);
-      if (isHubsRoomOrScene) {
-        console.log(link);
+      console.log(`start: ${start}, results: ${result.search_information.total_results}`)
+      for (const r of result.organic_results) {
+        const link = r.link;
+        //console.log(link);
 
-        if (!urls.includes(link)) {
-          urls.push(link);
+        const isHubsRoomOrScene = checkIsHubsRoomOrScene(link);
+        if (isHubsRoomOrScene) {
+          console.log(link);
+
+          if (!urls.includes(link)) {
+            urls.push(link);
+          }
         }
       }
+
+      start += result.organic_results.length;
+
+      fs.writeFileSync('urls.txt', urls.join('\n'));
+    } catch (e) {
+      console.error(e);
+      break;
     }
 
-    fs.writeFileSync('urls.txt', urls.join('\n'));
+  }
 
-  })
+
 }
 
 
+run()
+  .then( () => console.log('done'), (err) => console.log('error', err))
+  .catch( (err) => console.log('error', err) );

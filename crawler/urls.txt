@@ -471,3 +471,6 @@ https://hubs.mozilla.com/scenes/Wu9rsJf/house-boat
 https://hubs.mozilla.com/scenes/hkHc7Eh/sromline-hub
 https://hubs.mozilla.com/scenes/uNVZeKd/spiral-tower
 https://hubs.mozilla.com/scenes/XrE9YBs/cu-boulder-visual-arts-center
+https://hubs.mozilla.com/scenes/ChiKPMr
+https://hubs.mozilla.com/scenes/DgeGZEX/modern-waterfront-house
+https://hubs.mozilla.com/scenes/4VJazQ8/treehouse-mod

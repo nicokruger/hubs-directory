@@ -53,7 +53,7 @@
     <div class="pt-1 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap gap-x-4 gap-y-2">
       <!-- show heading -->
 
-      <div v-for='hubs in filteredData' :key='hubs.thumbnailFilename' class="bg-slate-800 rounded p-2 hover:bg-slate-600 relative border border-slate-700">
+      <div v-for='hubs in filteredData.slice(0,showLimit)' :key='hubs.thumbnailFilename' class="bg-slate-800 rounded p-2 hover:bg-slate-600 relative border border-slate-700">
         <a :href="hubs.url" target="_blank">
           <div class="text-semibold break-words">{{hubs.title}}</div>
         </a>
@@ -71,7 +71,15 @@
         <button class="text-xs mt-2 bg-slate-700 rounded py-1 px-2 select-none cursor-pointer hover:underline" @click='onToggleTopLabel(hubs.labels)'>More Like This</button>
 
       </div>
+
     </div>
+
+    <div v-show='showLimit < filteredData.length' id='loadmore' class="bg-slate-800 rounded p-2 hover:bg-slate-600 relative border border-slate-700">
+      <button class="text-semibold break-words" @click='onLoadMore'>Load More</button>
+    </div>
+
+    <div class="h-32"></div>
+
   </div>
 </template>
 
@@ -109,20 +117,25 @@ const data = computed( () => {
 });
 
 
-// create a computer setter and getter that stores the labels
-// in the query parameter of the url
 const queryUrl = ref('');
+const pageSize = 30;
+const showLimitUrl = ref(pageSize);
 onMounted( () => {
   queryUrl.value = window.location.search;
+  showLimitUrl.value = parseInt(window.location.showLimit ?? pageSize);
+
 });
 window.addEventListener('popstate', () => {
   queryUrl.value = window.location.search;
+  showLimitUrl.value = parseInt(window.location.showLimit ?? pageSize);
 });
+
+
+
 const selectedLabels = computed({
   get: () => {
     const urlParams = new URLSearchParams(queryUrl.value);
     const labels = urlParams.get('labels');
-    console.log('read', labels);
     if (labels) {
       return labels.split(',');
     }
@@ -131,9 +144,26 @@ const selectedLabels = computed({
   set: (value) => {
     const urlParams = new URLSearchParams(window.location.search);
     urlParams.set('labels', value.join(','));
-    console.log('SET', value);
     queryUrl.value = urlParams;
     window.history.pushState({}, '', '?' + urlParams);
+  }
+});
+
+
+const showLimit = computed({
+  get: () => {
+    const urlParams = new URLSearchParams(queryUrl.value);
+    const showLimit = urlParams.get('showLimit');
+    if (showLimit) {
+      return parseInt(showLimit);
+    }
+    return pageSize;
+  },
+  set: (value) => {
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.set('showLimit', value.toString());
+    queryUrl.value = urlParams;
+    window.history.replaceState({}, '', '?' + urlParams);
   }
 });
 //const selectedLabels = ref([] as string[]);
@@ -199,10 +229,11 @@ const onToggleLabel = (label: LabelFilter) => {
     labels.push(labelKey);
   }
   selectedLabels.value = labels;
+
+  showLimit.value = pageSize;
 };
 
 const onToggleTopLabel = (labels: LabelsEntry[]) => {
-  console.log('check top label', labels);
 
   const labelFilters = labels.map( label => {
     return filteredLabels.value.find( l => l.label === label.Name );
@@ -215,6 +246,8 @@ const onToggleTopLabel = (labels: LabelsEntry[]) => {
   newLabels.push(labelKey);
   newLabels = uniq(newLabels);
   selectedLabels.value = newLabels;
+
+  showLimit.value = pageSize;
 };
 
 const selectedLabelClass = (label: LabelFilter) => {
@@ -226,6 +259,7 @@ const selectedLabelClass = (label: LabelFilter) => {
 
 const clearLabels = () => {
   selectedLabels.value = [];
+  showLimit.value = pageSize;
 };
 
 
@@ -234,6 +268,26 @@ const openRandomScene = () => {
   const hubs = filteredData.value[randomIndex];
   window.open(hubs.url, '_blank');
 };
+
+const onLoadMore = () => {
+  showLimit.value += pageSize;
+};
+
+onMounted( () => {
+
+  // setup an intersection observer on #loadmore
+  const loadMore = document.getElementById('loadmore');
+  if (loadMore) {
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        onLoadMore();
+      }
+    });
+    observer.observe(loadMore);
+  }
+
+
+});
 
 </script>
 

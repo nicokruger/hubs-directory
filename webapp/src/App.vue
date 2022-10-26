@@ -50,7 +50,7 @@
       <div class="text-lg font-thin font-sans">Showing {{ filteredData.length }} scenes</div>
         <button class="mt-8 bg-slate-700 rounded py-2 px-4 select-none cursor-pointer" @click='openRandomScene'>Random</button>
     </div>
-    <div class="pt-1 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap gap-x-4 gap-y-2">
+    <div class="pt-1 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap gap-x-4 gap-y-4">
       <!-- show heading -->
 
       <div v-for='hubs in filteredData.slice(0,showLimit)' :key='hubs.thumbnailFilename' class="bg-slate-800 rounded p-2 hover:bg-slate-600 relative border border-slate-700">
@@ -69,6 +69,9 @@
         </div>
 
         <button class="text-xs mt-2 bg-slate-700 rounded py-1 px-2 select-none cursor-pointer hover:underline" @click='onToggleTopLabel(hubs.labels)'>More Like This</button>
+
+        <!-- show domain at bottom right -->
+        <div class="text-xs text-gray-400 absolute bottom-0 right-0">{{hubs.urlDomain}}</div>
 
       </div>
 
@@ -185,6 +188,9 @@ const filteredData = computed(() => {
     }
     // if within the last 24 hours from max addedTime, label as new
     scene.isNew = new Date(scene.addedTime).getTime() > new Date(maxAddedTime.addedTime).getTime() - 24 * 60 * 60 * 1000;
+
+    const urlDomain = new URL(scene.url).hostname;
+    scene.urlDomain = urlDomain;
     return scene;
   });
   // newest added first

@@ -53,10 +53,13 @@
     <div class="pt-1 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap gap-x-4 gap-y-2">
       <!-- show heading -->
 
-      <div v-for='hubs in filteredData' :key='hubs.thumbnailFilename' class="bg-slate-800 rounded p-2 hover:bg-slate-600">
+      <div v-for='hubs in filteredData' :key='hubs.thumbnailFilename' class="bg-slate-800 rounded p-2 hover:bg-slate-600 relative border border-slate-700">
         <a :href="hubs.url" target="_blank">
           <div class="text-semibold break-words">{{hubs.title}}</div>
         </a>
+
+        <!-- add a new label at the top right if the scene is new -->
+        <div v-if="hubs.isNew" class="bg-slate-700 rounded-lg text-white text-xs px-1 py-1 absolute top-0 right-0">New</div>
 
         <!-- draw thumbnail -->
         <div class="flex object-contain justify-center">
@@ -77,7 +80,7 @@ import { computed, ref, onMounted } from 'vue';
 import HelloWorld from './components/HelloWorld.vue';
 
 import dataRaw from './all.json';
-import { uniq, uniqBy, maxBy } from 'lodash';
+import { uniq, uniqBy, maxBy, sortBy } from 'lodash';
 
 type LabelFilter = {
   label: string;
@@ -137,12 +140,25 @@ const selectedLabels = computed({
 
 const filteredData = computed(() => {
   const anyLabelSelected = selectedLabels.value.length > 0;
-  return data.value.filter((d) => {
+  const maxAddedTime = maxBy(data.value, 'addedTime');
+  const scenes = data.value.filter((d) => {
     const allSelectedLabelsPresent = selectedLabels.value.every((label) => {
       return d.labels.some((l) => l.Name === label && l.Confidence > confidenceThreshold.value);
     });
     return !anyLabelSelected || allSelectedLabelsPresent;
+  }).map( (scene) => {
+    if (!scene.addedTime) {
+      scene.addedTime = new Date('1970-01-01').toISOString();
+    }
+    if (!scene.updatedTime) {
+      scene.updatedTime = new Date('1970-01-01').toISOString();
+    }
+    // if within the last 24 hours from max addedTime, label as new
+    scene.isNew = new Date(scene.addedTime).getTime() > new Date(maxAddedTime.addedTime).getTime() - 24 * 60 * 60 * 1000;
+    return scene;
   });
+  // newest added first
+  return sortBy(scenes, 'addedTime').reverse();
 });
 
 const calculatedLabels = computed( () => {

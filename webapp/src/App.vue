@@ -106,17 +106,19 @@ type HubsEntry = {
   url: string;
   title: string;
   labels: LabelsEntry[];
+  links: string[];
 };
 const confidenceThreshold = ref(80);
 const dataBefore = dataRaw as HubsEntry[];
 const data = computed( () => {
-  return uniqBy(dataBefore.map( hubs => {
-    const labels = hubs.labels.filter( label => label.Confidence > confidenceThreshold.value );
-    return {
-      ...hubs,
-      label: labels,
-    }
-  }), 'thumbnail');
+  return uniqBy(dataBefore
+    .map( hubs => {
+      const labels = hubs.labels.filter( label => label.Confidence > confidenceThreshold.value );
+      return {
+        ...hubs,
+        label: labels,
+      }
+    }), 'thumbnail');
 });
 
 

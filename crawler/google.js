@@ -28,7 +28,8 @@ async function searchGoogle(query, start) {
 
 async function run() {
   let start = 0;
-  const query = "inurl:scenes site:hubs.mozilla.com";
+  //const query = "inurl:scenes site:hubs.mozilla.com";
+  const query = "site:hubs.mozilla.com";
   while (true) {
     try {
       const result = await searchGoogle(query, start);

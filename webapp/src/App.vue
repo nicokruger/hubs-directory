@@ -32,10 +32,14 @@
     <div class="p-2 gap gap-x-4">
       <!-- draw labels -->
       <div class="grid grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-x-4 flex-wrap gap-y-4">
-        <div v-for="label in filteredLabels" :key="label" class="flex flex-wrap flex-row items-center justify-between gap-x gap-x-4 text-xs rounded py-1 px-1 select-none cursor-pointer hover:bg-slate-400" :class='selectedLabelClass(label)' @click='onToggleLabel(label)'>
+        <div v-for="label in filteredLabels.slice(0,showLabelsLimit)" :key="label" class="flex flex-wrap flex-row items-center justify-between gap-x gap-x-4 text-xs rounded py-1 px-1 select-none cursor-pointer hover:bg-slate-400" :class='selectedLabelClass(label)' @click='onToggleLabel(label)'>
           <div class="text-center text-xs ">{{ label.label }}</div>
           <div class="text-center bg-slate-800 rounded-lg text-white truncate">{{ label.count }}</div>
         </div>
+
+        <button v-if='showLabelsLimit < filteredLabels.length'
+                class="bg-slate-500 rounded py-1 px-4 text-white select-none cursor-pointer hover:text-black hover:bg-slate-300" @click='showLabelsLimit += 40'>{{filteredLabels.length - showLabelsLimit}} More</button>
+
       </div>
 
       <div class="flex flex-row gap gap-x-4 justify-center items-center">
@@ -73,6 +77,14 @@
         <!-- show domain at bottom right -->
         <div class="text-xs text-gray-400 absolute bottom-0 right-0">{{hubs.urlDomain}}</div>
 
+        <!--
+        <div>
+          <div class="flex flex-col">
+            <div v-for='(label,i) in hubs.labels' :key='i'>{{label.Name}} - {{label.Confidence}}</div>
+          </div>
+        </div>
+        -->
+
       </div>
 
     </div>
@@ -90,8 +102,9 @@
 import { computed, ref, onMounted } from 'vue';
 import HelloWorld from './components/HelloWorld.vue';
 
-import dataRaw from './all.json';
 import { uniq, uniqBy, maxBy, sortBy } from 'lodash';
+import dataRaww from './all.json';
+const dataRaw = uniqBy(dataRaww, 'thumbnail');
 
 type LabelFilter = {
   label: string;
@@ -108,7 +121,7 @@ type HubsEntry = {
   labels: LabelsEntry[];
   links: string[];
 };
-const confidenceThreshold = ref(80);
+const confidenceThreshold = ref(40);
 const dataBefore = dataRaw as HubsEntry[];
 const data = computed( () => {
   return uniqBy(dataBefore
@@ -125,14 +138,18 @@ const data = computed( () => {
 const queryUrl = ref('');
 const pageSize = 30;
 const showLimitUrl = ref(pageSize);
+const showLabelsLimitUrl = ref(30);
+
 onMounted( () => {
   queryUrl.value = window.location.search;
   showLimitUrl.value = parseInt(window.location.showLimit ?? pageSize);
+  showLabelsLimitUrl.value = parseInt(window.location.showLabelsLimit ?? 30);
 
 });
 window.addEventListener('popstate', () => {
   queryUrl.value = window.location.search;
   showLimitUrl.value = parseInt(window.location.showLimit ?? pageSize);
+  showLabelsLimitUrl.value = parseInt(window.location.showLabelsLimit ?? 30);
 });
 
 
@@ -167,6 +184,22 @@ const showLimit = computed({
   set: (value) => {
     const urlParams = new URLSearchParams(window.location.search);
     urlParams.set('showLimit', value.toString());
+    queryUrl.value = urlParams;
+    window.history.replaceState({}, '', '?' + urlParams);
+  }
+});
+const showLabelsLimit = computed({
+  get: () => {
+    const urlParams = new URLSearchParams(queryUrl.value);
+    const showLabelsLimit = urlParams.get('showLabelsLimit');
+    if (showLabelsLimit) {
+      return parseInt(showLabelsLimit);
+    }
+    return showLabelsLimitUrl.value;
+  },
+  set: (value) => {
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.set('showLabelsLimit', value.toString());
     queryUrl.value = urlParams;
     window.history.replaceState({}, '', '?' + urlParams);
   }
@@ -221,10 +254,10 @@ const calculatedLabels = computed( () => {
       count
     });
   }
-  return labelsFilter;
+  return sortBy(labelsFilter,'count').reverse();
 });
 const filteredLabels = computed( () => {
-  return calculatedLabels.value.filter((label) => label.count > 1);
+  return calculatedLabels.value.filter((label) => label.count > 0);
 });
 
 const onToggleLabel = (label: LabelFilter) => {
@@ -268,6 +301,7 @@ const selectedLabelClass = (label: LabelFilter) => {
 const clearLabels = () => {
   selectedLabels.value = [];
   showLimit.value = pageSize;
+  showLabelsLimit.value = 30;
 };
 
 
